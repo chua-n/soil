@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from particle.clump.mghAlgorithm import *
+from particle.clump.mgh import *
 
 # datafile = r"E:\Code\VAE\data\test_set.npy"
 # data = np.load(datafile)

@@ -26,11 +26,12 @@ net_G = Generator().to(device)
 # net_D.weights_init()
 # net_G.weights_init()
 
-optim_D = torch.optim.Adam(net_D.parameters(), lr=LR, betas=(BETA, 0.999))
-optim_G = torch.optim.Adam(net_G.parameters(), lr=LR, betas=(BETA, 0.999))
+# modification2: use RMSprop instead of Adam
+optim_D = torch.optim.RMSprop(net_D.parameters(), lr=LR)
+optim_G = torch.optim.RMSprop(net_G.parameters(), lr=LR)
 
-# 要知道：G是通过优化D来间接提升自己的，故两个网络只需一个loss criterion
-criterion = nn.BCELoss()
+# modification3: no log in loss
+# criterion = nn.BCELoss()
 
 # Create a batch of latent vectors that we will use to visualize
 #  the progression of the generator
@@ -39,26 +40,33 @@ fixed_noise = torch.randn(5, n_latent, 1, 1, 1, device=device)
 real_label = 1
 fake_label = 0
 
+clamp = 0.01
+
 begin = time.time()
 for epoch in range(N_EPOCH):
     for i, (x,) in enumerate(train_set):
         x = x.to(dtype=torch.float, device=device)
+        with torch.no_grad():
+            for param in net_D.parameters():
+                param.clamp_(-clamp, clamp)
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         # 判真
         label = torch.full((x.size(0),), real_label,
                            device=device, dtype=torch.float)
         net_D.zero_grad()
         judgement_real = net_D(x).view(-1)
-        loss_D_real = criterion(judgement_real, label)
-        loss_D_real.backward()
+        # loss_D_real = criterion(judgement_real, label)
+        loss_D_real = judgement_real
+        loss_D_real.backward(torch.ones_like(loss_D_real))
         D_x = judgement_real.mean().item()
         # 判假
         noise = torch.randn(x.size(0), n_latent, 1, 1, 1, device=device)
         fake = net_G(noise)
         label.fill_(fake_label)
         judgement_fake = net_D(fake.detach()).view(-1)
-        loss_D_fake = criterion(judgement_fake, label)
-        loss_D_fake.backward()
+        # loss_D_fake = criterion(judgement_fake, label)
+        loss_D_fake = judgement_fake
+        loss_D_fake.backward(-torch.ones_like(loss_D_fake))
         D_G_z1 = judgement_fake.mean().item()
         loss_D = loss_D_real + loss_D_fake
         optim_D.step()
@@ -68,8 +76,9 @@ for epoch in range(N_EPOCH):
         label.fill_(real_label)  # fake labels are real for generator cost
         # Since we just updated D, perform another forward pass of all-fake batch through D
         judgement = net_D(fake).view(-1)
-        loss_G = criterion(judgement, label)
-        loss_G.backward()
+        # loss_G = criterion(judgement, label)
+        loss_G = judgement
+        loss_G.backward(torch.ones_like(loss_G))
         D_G_z2 = judgement.mean().item()
         optim_G.step()
 
@@ -78,7 +87,7 @@ for epoch in range(N_EPOCH):
             print('Time cost so far: {}h {}min {}s'.format(
                 time_cost // 3600, time_cost % 3600 // 60, time_cost % 3600 % 60 // 1))
             print("Epoch[{}/{}], Step [{}/{}], Loss_D: {:.4f}, Loss_G: {:.4f}, D(x): {:.4f}, D(G(z)): {:.4f} / {:.4f}".
-                  format(epoch + 1, N_EPOCH, i + 1, len(train_set), loss_D.item(), loss_G.item(), D_x, D_G_z1, D_G_z2))
+                  format(epoch + 1, N_EPOCH, i + 1, len(train_set), loss_D.sum().item(), loss_G.sum().item(), D_x, D_G_z1, D_G_z2))
 
     # 每轮结束保存一次模型参数
     torch.save({
