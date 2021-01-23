@@ -1,9 +1,9 @@
-# from particle.mayaviOffScreen import mlab
+from particle.mayaviOffScreen import mlab
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 from particle.pipeline import Sand
-from particle.nn.gan.dcgan import Discriminator, Generator, train, generate
+from particle.nn.dcgan import Discriminator, Generator, train, generate
 
 
 def run():
@@ -37,7 +37,7 @@ def test():
 
     # 以下为查看当前生成效果
     checkpoint = torch.load(
-        '/home/chuan/soil/output/dcgan/nLatent32-ngf16-ndf16/param/state_dict.tar', map_location='cpu')
+        '/home/chuan/soil/output/dcgan/param/state_dict.tar', map_location='cpu')
     # checkpoint = torch.load('/home/chuan/soil/output/gan/nLatent32/param/state_dict.tar', map_location='cpu')
     net_G.load_state_dict(checkpoint['generator_state_dict'])
 
@@ -46,6 +46,7 @@ def test():
 
     cubes = generate(net_G, vec)
     cubes = cubes.numpy()
+    np.save('output/geometry/gan.npy', cubes)
     for cube in cubes:
         cube[cube <= 0.5] = 0
         cube[cube > 0.5] = 1
