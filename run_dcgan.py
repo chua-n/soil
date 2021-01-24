@@ -24,7 +24,7 @@ def run():
     # net_G.weights_init()
 
     train(net_D, net_G, train_set, device,
-          img_dir="output/dcgan/process", log_dir="output/log", ckpt_dir="output/dcgan/param")
+          img_dir="output/dcgan/process", log_dir="output/dcgan", ckpt_dir="output/dcgan")
     return
 
 
@@ -37,7 +37,7 @@ def test():
 
     # 以下为查看当前生成效果
     checkpoint = torch.load(
-        '/home/chuan/soil/output/dcgan/param/state_dict.tar', map_location='cpu')
+        '/home/chuan/soil/output/dcgan/state_dict.tar', map_location='cpu')
     # checkpoint = torch.load('/home/chuan/soil/output/gan/nLatent32/param/state_dict.tar', map_location='cpu')
     net_G.load_state_dict(checkpoint['generator_state_dict'])
 

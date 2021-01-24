@@ -1,16 +1,17 @@
+from particle.mayaviOffScreen import mlab
 import numpy as np
 
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 
-from particle.nn.wgan import *
+from particle.nn.wgan_gp import *
 
 
 def run():
     mlab.options.offscreen = True
     torch.manual_seed(3.14)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    xml = "particle/nn/config/wgan.xml"
+    xml = "particle/nn/config/wgan_gp.xml"
     net_D = Critic(xml)
     net_G = Generator(xml)
     hp = net_D.hp
@@ -19,8 +20,8 @@ def run():
     train_set = DataLoader(TensorDataset(source),
                            batch_size=hp['bs'], shuffle=True)
 
-    train(net_D, net_G, train_set, device, img_dir="output/wgan/process",
-          ckpt_dir="output/wgan/param", log_dir="output/log")
+    train(net_D, net_G, train_set, device, img_dir="output/wgan_gp/process",
+          ckpt_dir="output/wgan_gp", log_dir="output/wgan_gp")
     return
 
 
@@ -28,12 +29,12 @@ def test():
     from mayavi import mlab
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     device = torch.device("cpu")
-    xml = "particle/nn/config/wgan.xml"
+    xml = "particle/nn/config/wgan_gp.xml"
     net_G = Generator(xml).to(device)
 
     # 以下为查看当前生成效果
     checkpoint = torch.load(
-        '/home/chuan/soil/output/wgan/param/state_dict.tar', map_location='cpu')
+        '/home/chuan/soil/output/wgan_gp/state_dict.tar', map_location='cpu')
     net_G.load_state_dict(checkpoint['generator_state_dict'])
 
     torch.manual_seed(3.14)
@@ -41,7 +42,7 @@ def test():
 
     cubes = generate(net_G, vec)
     cubes = cubes.numpy()
-    np.save('output/geometry/wgan.npy', cubes)
+    np.save('output/geometry/wgan_gp.npy', cubes)
     # for cube in cubes:
     #     cube[cube <= 0.5] = 0
     #     cube[cube > 0.5] = 1
