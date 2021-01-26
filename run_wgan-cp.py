@@ -1,4 +1,5 @@
 import numpy as np
+from particle.mayaviOffScreen import mlab
 
 import torch
 from torch.utils.data import TensorDataset, DataLoader
@@ -7,7 +8,7 @@ from particle.nn.wgan_cp import *
 
 
 def run():
-    mlab.options.offscreen = True
+    # mlab.options.offscreen = True
     torch.manual_seed(3.14)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     xml = "particle/nn/config/wgan_cp.xml"

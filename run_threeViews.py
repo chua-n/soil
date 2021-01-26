@@ -11,7 +11,7 @@ def run():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Reconstructor("./particle/nn/config/threeViews.xml",
-                          log_dir="output/log", ckpt_dir='output/threeViews')
+                          log_dir="output/threeViews", ckpt_dir='output/threeViews')
 
     source_path = './data'
     cwd = os.getcwd()
