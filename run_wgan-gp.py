@@ -1,28 +1,8 @@
-from particle.mayaviOffScreen import mlab
 import numpy as np
-
 import torch
-from torch.utils.data import TensorDataset, DataLoader
 
+from particle.mayaviOffScreen import mlab
 from particle.nn.wgan_gp import *
-
-
-def run():
-    mlab.options.offscreen = True
-    torch.manual_seed(3.14)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    xml = "particle/nn/config/wgan_gp.xml"
-    net_D = Critic(xml)
-    net_G = Generator(xml)
-    hp = net_D.hp
-    source_path = '/home/chuan/soil/data/train_set.npy'
-    source = torch.from_numpy(np.load(source_path))
-    train_set = DataLoader(TensorDataset(source),
-                           batch_size=hp['bs'], shuffle=True)
-
-    train(net_D, net_G, train_set, device, img_dir="output/wgan_gp/process",
-          ckpt_dir="output/wgan_gp", log_dir="output/wgan_gp")
-    return
 
 
 def test():
@@ -56,5 +36,7 @@ def test():
 
 
 if __name__ == "__main__":
-    run()
+    # train wgan_gp
+    torch.manual_seed(3.14)
+    train()
     # test()

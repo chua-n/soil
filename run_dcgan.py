@@ -1,31 +1,9 @@
-from particle.mayaviOffScreen import mlab
 import numpy as np
 import torch
-from torch.utils.data import TensorDataset, DataLoader
+
+from particle.mayaviOffScreen import mlab
 from particle.pipeline import Sand
-from particle.nn.dcgan import Discriminator, Generator, train, generate
-
-
-def run():
-    torch.manual_seed(3.14)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    xml = "particle/nn/config/dcgan.xml"
-    net_D = Discriminator(xml)
-    net_G = Generator(xml)
-
-    source_path = '/home/chuan/soil/data/train_set.npy'
-    source = torch.from_numpy(np.load(source_path))
-    train_set = DataLoader(TensorDataset(
-        source), batch_size=net_D.hp['bs'], shuffle=True)
-
-    # net_D.weights_init()
-    # net_G.weights_init()
-
-    train(net_D, net_G, train_set, device,
-          img_dir="output/dcgan/process", log_dir="output/dcgan", ckpt_dir="output/dcgan")
-    return
+from particle.nn.dcgan import Generator, train, generate
 
 
 def test():
@@ -42,7 +20,7 @@ def test():
     net_G.load_state_dict(checkpoint['generator_state_dict'])
 
     torch.manual_seed(3.14)
-    vec = torch.randn(3000, net_G.hp['nLatent'], device=device)
+    vec = torch.randn(3000, net_G.nLatent, device=device)
 
     cubes = generate(net_G, vec)
     cubes = cubes.numpy()
@@ -60,5 +38,7 @@ def test():
 
 
 if __name__ == "__main__":
-    run()
+    # train dcgan
+    torch.manual_seed(3.14)
+    train()
     # test()
