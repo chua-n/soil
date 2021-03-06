@@ -1,25 +1,26 @@
 from tqdm import trange
 import numpy as np
-from skimage import measure
+from skimage import morphology, segmentation, measure
+from skimage.feature import peak_local_max
+from scipy import ndimage as ndi
 
-file = "data/all.npy"
+file = "./data/all.npy"
 data = np.load(file)
-# print(data.shape)
-# mask = np.ones(len(data), dtype=np.bool)
-# for i in trange(len(data)):
-#     cube = data[i, 0]
-#     labels, num = measure.label(cube, connectivity=2, return_num=True)
-#     if num > 1:
-#         mask[i] = False
-# print(np.sum(mask == False))
 
-train = "data/train_set.npy"
-train = np.load(train)
-test = "data/test_set.npy"
-test = np.load(test)
-rest = "data/the_rest.npy"
-rest = np.load(rest)
-flag_train = (data[:len(train)] == train).all()
-flag_test = (data[len(train):len(train)+len(test)] == test).all()
-flag_rest = (data[len(train)+len(test):] == rest).all()
-print(flag_train, flag_test, flag_rest, sep="\n")
+# Now we want to separate the two objects in image
+# Generate the markers as local maxima of the distance to the background
+bad = []
+for i in trange(len(data)):
+    cube = data[213, 0]  # 185
+    distance = ndi.distance_transform_edt(cube)
+    coords = peak_local_max(distance, min_distance=3, labels=cube)
+    mask = np.zeros(distance.shape, dtype=bool)
+    mask[tuple(coords.T)] = True
+    markers, _ = ndi.label(mask)
+    labels = segmentation.watershed(-distance, markers, mask=cube)
+    label, num = measure.label(labels, return_num=True)
+    if num > 3:
+        bad.append(i)
+    if len(bad) % 500 == 0:
+        print("Bingo!")
+print(bad)
