@@ -1,17 +1,19 @@
 import os
+from particle.utils.dirty import loadNnData
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import TensorDataset, DataLoader
-from particle.nn.threeViews import Reconstructor, get_projection_set, train
+from particle.nn.mvsnet import TVSNet, getProjections, train
+# from particle.nn.threeViews import TVSNet, getProjections, train
 
 
 def run():
     torch.manual_seed(3.14)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = Reconstructor("./particle/nn/config/threeViews.xml",
-                          log_dir="output/threeViews", ckpt_dir='output/threeViews')
+    model = TVSNet("./particle/nn/config/threeViews.xml",
+                   log_dir="output/threeViews", ckpt_dir='output/threeViews')
 
     source_path = './data'
     cwd = os.getcwd()
@@ -19,8 +21,8 @@ def run():
     source_train = torch.from_numpy(np.load('train_set.npy'))
     source_test = torch.from_numpy(np.load('test_set.npy'))
     os.chdir(cwd)
-    projection_train = get_projection_set(source_train)
-    projection_test = get_projection_set(source_test)
+    projection_train = getProjections(source_train)
+    projection_test = getProjections(source_test)
     train_set = DataLoader(
         TensorDataset(projection_train, source_train), batch_size=model.hp['bs'], shuffle=True)
     test_set = DataLoader(TensorDataset(
@@ -50,10 +52,10 @@ def run():
 def study():
     from mayavi import mlab
     from skimage import io as skio
-    model = Reconstructor("./particle/nn/config/threeViews-test.xml")
-    state_dict = torch.load('./state_dict.tar',
+    model = TVSNet("./particle/nn/config/mvsnet.xml")
+    state_dict = torch.load('output/mvsnet/网络加深/dropout0.2, 数据增强/预训练/state_dict.pt',
                             map_location=torch.device('cpu'))
-    model.load_state_dict(state_dict['model_state_dict'])
+    model.load_state_dict(state_dict)
     model.eval()
 
     def test_generate(ind):
@@ -70,21 +72,23 @@ def study():
         model.generate(x)
         mlab.outline()
         mlab.axes()
+        mlab.show()
         mlab.savefig(filename)
         return
 
-    # test_generate(6)
-    train_set = torch.from_numpy(np.load(r'./data/train_set.npy'))
-    projection_set = Reconstructor.get_projection_set(train_set)
-    ind = 666
-    fig1, fig2 = model.contrast(
-        projection_set[ind], train_set[ind, 0], voxel=True)
-    mlab.savefig("contrast1.png", figure=fig1)
-    mlab.savefig("contrast2.png", figure=fig1)
+    # test_generate(4)
+    source_set = loadNnData("data/liutao/v1/particles.npz", "testSet")
+    projection_set = getProjections(source_set)
+    for ind in range(200, 300):
+        fig1, fig2 = model.contrast(
+            projection_set[ind], source_set[ind, 0], voxel=True)
+        mlab.show()
+    # mlab.savefig("contrast1.png", figure=fig1)
+    # mlab.savefig("contrast2.png", figure=fig2)
 
     return
 
 
 if __name__ == "__main__":
-    run()
-    # study()
+    # run()
+    study()

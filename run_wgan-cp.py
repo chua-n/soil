@@ -28,8 +28,8 @@ def test():
     #     cube[cube > 0.5] = 1
     #     sand = Sand(cube)
     #     # sand.visualize(voxel=True, glyph='sphere', scale_mode='scalar')
-    #     # sand.visualize(realistic=False)
-    #     sand.visualize(realistic=True)
+    #     # sand.visualize(vivid=False)
+    #     sand.visualize(vivid=True)
     #     mlab.outline()
     #     mlab.axes()
     #     mlab.show()
