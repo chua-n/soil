@@ -1,11 +1,10 @@
-import itertools
 import numpy as np
 import torch
 
 # from mayavi import mlab
 from particle.mayaviOffScreen import mlab
 from particle.pipeline import Sand
-from particle.nn.dcgan import Generator, train, generate
+from particle.nn.dcgan import Generator, generate
 
 
 def test():
@@ -94,10 +93,6 @@ def surround(z, xml="particle/nn/config/dcgan.xml", angleInd=1):
 
 
 if __name__ == "__main__":
-    # train dcgan
-    # torch.manual_seed(3.14)
-    # train()
-
     # generate particles
     # test()
 

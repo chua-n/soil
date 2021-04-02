@@ -1,9 +1,9 @@
 import numpy as np
 import torch
-
 from mayavi import mlab
+
 from particle.pipeline import Sand
-from particle.nn.vae import Vae, train
+from particle.nn.vae import Vae
 
 
 def test():
@@ -17,7 +17,7 @@ def test():
     print(vec.shape)
     cubes = vae.generate(vec)
     print(cubes.shape, cubes.dtype)
-    
+
     np.save("output/geometry/vae.npy", cubes)
     for cube in cubes:
         sand = Sand(cube)
@@ -28,9 +28,5 @@ def test():
 
 
 if __name__ == "__main__":
-    # train vae
-    # torch.manual_seed(3.14)
-    # train()
-
     # generate particles
     test()
