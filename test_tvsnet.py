@@ -3,15 +3,14 @@ import numpy as np
 import torch
 
 from particle.utils.dirty import loadNnData
-from particle.nn.tvsnet import TVSNet, getProjections
-# from particle.nn.threeViews import TVSNet, getProjections, train
+from particle.nn.tvsnet import VaeTVSNet, getProjections
 
 
 def study():
     from mayavi import mlab
     from skimage import io as skio
-    model = TVSNet("./particle/nn/config/tvsnet.xml")
-    state_dict = torch.load('output/tvsnet/网络加深/dropout0.2, 数据增强/预训练/state_dict.pt',
+    model = VaeTVSNet("./particle/nn/config/tvsnet.xml")
+    state_dict = torch.load('output/tvsnet/none/v1/state_dict.pt',
                             map_location=torch.device('cpu'))
     model.load_state_dict(state_dict)
     model.eval()
