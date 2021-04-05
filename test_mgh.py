@@ -7,7 +7,7 @@ from particle.clump.mgh import *
 # sandCube = data[46, 0]
 sandCube = np.load("./data/special/132.npy")
 sand = Sand(sandCube)
-sandPointCloud = sand.point_cloud().T
+sandPointCloud = sand.toCoords()
 cells = CellCollection(sandPointCloud, nX=20)
 scpMatrix = SCPMatrix(cells)
 center, radii = scpMatrix.solver()

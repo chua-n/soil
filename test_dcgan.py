@@ -45,7 +45,7 @@ def interpolate(z1, z2, xml="particle/nn/config/dcgan.xml"):
     for beta, z in zip(betas, inters):
         cubes.append(generate(net_G, z))
         sand = Sand(cubes[-1])
-        sand.cube = sand.pose_normalization()
+        sand.cube = sand.poseNormalization()
         sand.visualize(figure=f"{1-beta:.1f}-{beta:.1f}")
         # mlab.outline()
         # mlab.axes()
@@ -67,7 +67,7 @@ def surround(z, xml="particle/nn/config/dcgan.xml", angleInd=1):
     for sigma, z in zip(sigmas, zs):
         cubes.append(generate(net_G, z))
         sand = Sand(cubes[-1])
-        # sand.cube = sand.pose_normalization()
+        # sand.cube = sand.poseNormalization()
         if len(cubes) == 1:
             Sand(cubes[0]).visualize(figure=f"{sigma:.1f}",
                                      color=(0.9, 0.9, 0.9), opacity=1)
