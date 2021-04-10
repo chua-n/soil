@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 
-# from mayavi import mlab
-from particle.mayaviOffScreen import mlab
+from mayavi import mlab
+# from particle.mayaviOffScreen import mlab
 from particle.pipeline import Sand
 from particle.nn.dcgan import Generator, generate
 
@@ -103,8 +103,14 @@ if __name__ == "__main__":
     # interpolate(z1, z2)
 
     # test surround
-    torch.manual_seed(512)
-    z = torch.randn(64)
-    surround(z, angleInd=1)
-    surround(z, angleInd=2)
-    surround(z, angleInd=3)
+    # torch.manual_seed(512)
+    # z = torch.randn(64)
+    # surround(z, angleInd=1)
+    # surround(z, angleInd=2)
+    # surround(z, angleInd=3)
+
+    # 这个位姿归一化有点奇葩
+    data = np.load("data/liutao/v1/particles.npz")["testSet"]
+    sand = Sand(data[158, 0])
+    sand.visualize(sand.poseNormalization())
+    mlab.show()
