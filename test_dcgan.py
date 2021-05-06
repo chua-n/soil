@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 
-from mayavi import mlab
-# from particle.mayaviOffScreen import mlab
+# from mayavi import mlab
+from particle.mayaviOffScreen import mlab
 from particle.pipeline import Sand
 from particle.nn.dcgan import Generator, generate
 
@@ -89,7 +89,7 @@ def surround(z, xml="particle/nn/config/dcgan.xml", angleInd=1):
             raise ValueError
         mlab.savefig(f"/home/chuan/{angleInd}-{sigma:.1f}.png",
                      magnification=2)
-    mlab.show()
+    # mlab.show()
 
 
 if __name__ == "__main__":
@@ -97,10 +97,10 @@ if __name__ == "__main__":
     # test()
 
     # test interpolate
-    # torch.manual_seed(28)
-    # z1 = torch.randn(64)
-    # z2 = torch.randn(64)
-    # interpolate(z1, z2)
+    torch.manual_seed(100)
+    z1 = torch.randn(64)
+    z2 = torch.randn(64)
+    interpolate(z1, z2)
 
     # test surround
     # torch.manual_seed(512)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     # surround(z, angleInd=3)
 
     # 这个位姿归一化有点奇葩
-    data = np.load("data/liutao/v1/particles.npz")["testSet"]
-    sand = Sand(data[158, 0])
-    sand.visualize(sand.poseNormalization())
-    mlab.show()
+    # data = np.load("data/liutao/v1/particles.npz")["testSet"]
+    # sand = Sand(data[158, 0])
+    # sand.visualize(sand.poseNormalization())
+    # mlab.show()
