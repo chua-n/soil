@@ -1,4 +1,3 @@
-import random
 import numpy as np
 from skimage import measure
 from tqdm import tqdm
@@ -11,7 +10,8 @@ from particle.clump import distTrans
 
 def build():
     num = 1000
-    fakeParticles = np.load("output/geometry/generatedParticles/gan.npy")[:num]
+    fakeParticles = np.load(
+        "/home/chuan/soil/output/tvsnet/vae/通道加多/no-dropout, rotation60, 1*1ConvT-no-bn/state_dict.pt")[:num]
     fakeParticlesTmp = []
     balls = []
     clumps = []
@@ -41,7 +41,7 @@ def build():
     return
 
 
-def arrange(nLength=7, nWidth=7):
+def arrange(nLength=8, nWidth=8):
     fakeParticles = np.load("output/clump/pipeline/fakeParticles.npy",
                             allow_pickle=True)
     balls = np.load("output/clump/pipeline/balls.npy")
@@ -50,7 +50,7 @@ def arrange(nLength=7, nWidth=7):
     nl = nw = 0
     curMaxWidth = curMaxHeight = 0
     lastLengthEnd = lastWidthEnd = lastHeightEnd = 0
-    for i, particle in enumerate(fakeParticles):
+    for i, particle in tqdm(enumerate(fakeParticles)):
         sizeL = particle[:, 0].max() - particle[:, 0].min()
         sizeW = particle[:, 1].max() - particle[:, 1].min()
         sizeH = particle[:, 2].max() - particle[:, 2].min()
@@ -96,39 +96,53 @@ def arrange(nLength=7, nWidth=7):
     return
 
 
-def plotParticles():
+def plotParticles(saveObj=True):
     fakeParticles = np.load("output/clump/pipeline/fakeParticles-move.npy",
                             allow_pickle=True)
-    fig = mlab.figure()
-    for particle in fakeParticles:
-        mlab.points3d(particle[:, 0],
-                      particle[:, 1],
-                      particle[:, 2],
-                      mode="point", color=(random.random(), random.random(), random.random()))
+    fakeParticles = np.vstack(fakeParticles)
+    print(fakeParticles.shape)
+    bigCubes = np.zeros((
+        fakeParticles[:, 0].max() - fakeParticles[:, 0].min() + 1,
+        fakeParticles[:, 1].max() - fakeParticles[:, 1].min() + 1,
+        fakeParticles[:, 2].max() - fakeParticles[:, 2].min() + 1
+    ), dtype=np.uint8)
+    bigCubes[tuple(fakeParticles.T)] = 1
+    outermostLayerThickness = 4
+    newBigCubes = np.zeros(np.array(bigCubes.shape)+outermostLayerThickness*2)
+    newBigCubes[outermostLayerThickness:-outermostLayerThickness,
+                outermostLayerThickness:-outermostLayerThickness,
+                outermostLayerThickness:-outermostLayerThickness] = bigCubes
+    bigCubes = newBigCubes
+    del newBigCubes
+    print(bigCubes.shape)
+    fig = Sand(bigCubes).visualize()
+    if saveObj:
+        mlab.savefig("output/clump/pipeline/fakeParticles.obj")
     return fig
 
 
 def plotBalls():
-    fig = mlab.figure()
+    fig = mlab.figure(bgcolor=(1, 1, 1), fgcolor=(0, 0, 0))
     balls = np.load("output/clump/pipeline/balls-move.npy")
-    plotter.sphere(balls[:, :3], balls[:, -1])
+    # plotter.sphere(balls[:, :3], balls[:, -1])
+    plotter.sphere(balls[:, :3], balls[:, -1],
+                   color=(0.65, 0.65, 0.65))
     return fig
 
 
 def plotClumps():
-    fig = mlab.figure()
+    fig = mlab.figure(bgcolor=(1, 1, 1), fgcolor=(0, 0, 0))
     clumps = np.load("output/clump/pipeline/clumps-move.npy",
                      allow_pickle=True)
     clumps = np.vstack(clumps)
-    plotter.sphere(clumps[:, :3], clumps[:, -1], resolution=15)
-    mlab.outline()
-    mlab.axes()
+    plotter.sphere(clumps[:, :3], clumps[:, -1], resolution=15,
+                   color=(0.65, 0.65, 0.65))
     return fig
 
 
-# build()
-# arrange()
-plotParticles()
+# arrange(8, 8)
+# plotParticles(saveObj=False)
 # plotBalls()
-# plotClumps()
+plotClumps()
+mlab.outline()
 mlab.show()
