@@ -35,7 +35,8 @@ def testSimpleGeometry(ind, model=None):
     x = torch.empty((3, 64, 64), dtype=torch.uint8)
     for i in range(3):
         x[i] = torch.from_numpy(image)
-    model.generate(x)
+    cube = generateOneParticle(model, x)
+    Sand(cube).visualize()
     mlab.outline()
     mlab.axes()
     mlab.show()
